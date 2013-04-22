@@ -13,6 +13,8 @@ import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 
+import com.ddm.video.util.FileUtils;
+
 public class ImageCreator
 {
 	private static Log log = LogFactory.getLog(ImageCreator.class);
@@ -126,14 +128,15 @@ public class ImageCreator
 		{
 			processedImage = convert();
 			composite(processedImage);
-			log.info("create Done.");
+			if(log.isDebugEnabled())
+			{
+				log.debug("Create Image [" + dstImage + "] Done.");
+			}
 		}
 		finally
 		{
 			// clean up
-			cleanFiles(new File(tmpDir), "tmp");
-			
-			reset();
+//			FileUtils.cleanDirectory(new File(tmpDir), new FileUtils.PrefixFilter("tmp"));
 		}
 
 		return 0;
@@ -159,12 +162,12 @@ public class ImageCreator
 		String tmpFile = getTmpFile();
 		op.addImage(srcImage, tmpFile);
 
-		if(log.isInfoEnabled())
+		if(log.isDebugEnabled())
 		{
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw, true);
 			convert.createScript(pw, op, new Properties());
-			log.info("[convert]: " + sw.toString());
+			log.debug("[convert]: " + sw.toString());
 		}
 
 		convert.run(op);
@@ -191,12 +194,12 @@ public class ImageCreator
 
 		op.addImage(inputImage, bkgImage, dstImage);
 
-		if(log.isInfoEnabled())
+		if(log.isDebugEnabled())
 		{
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw, true);
 			composite.createScript(pw, op, new Properties());
-			log.info("[composite]: " + sw.toString());
+			log.debug("[composite]: " + sw.toString());
 		}
 
 		composite.run(op);
@@ -209,38 +212,5 @@ public class ImageCreator
 	private String getTmpFile() throws IOException
 	{
 		return tmpDir + File.separator + "tmp1.png";
-	}
-
-	private void cleanFiles(File directory, String prefix)
-	{
-		if(!directory.exists())
-		{
-			return;
-		}
-
-		if(!directory.isDirectory())
-		{
-			return;
-		}
-
-		File[] files = directory.listFiles();
-		if(files == null)
-		{
-			return;
-		}
-
-		for(int i = 0; i < files.length; i++)
-		{
-			File file = files[i];
-			if(!file.isFile())
-			{
-				continue;
-			}
-			if(!file.getName().startsWith(prefix))
-			{
-				continue;
-			}
-			file.delete();
-		}
 	}
 }

@@ -17,7 +17,7 @@ public class VideoCreator
 	private String dstVideoName = null;
 	private int width = -1;
 	private int height = -1;
-	
+	private String srcAudio = null;
 	
 	public VideoCreator()
 	{
@@ -31,6 +31,7 @@ public class VideoCreator
 		srcImageNames = "frame%05d.png";
 		width = 480;
 		height = 320;
+		srcAudio = null;
 	}
 	
 	public VideoCreator srcFPS(int srcFPS)
@@ -63,6 +64,11 @@ public class VideoCreator
 		this.height = height;
 		return this;
 	}
+	public VideoCreator srcAudio(String srcAudio)
+	{
+		this.srcAudio = srcAudio;
+		return this;
+	}
 	
 	public int create()
 	{
@@ -77,9 +83,16 @@ public class VideoCreator
 		}
 		sb.append(srcImageNames);
 		
+		//audio?
+		if(srcAudio != null)
+		{
+			sb.append(" -i ").append(srcAudio);
+			sb.append(" -shortest -acodec libfaac -ab 128k -ar 44100 -ac 2 ");
+		}
+		
 		sb.append(" -vcodec libx264 -b:v 1200k -s ");
 		sb.append(width).append("x").append(height);
-		sb.append(" -r 30 ");
+		sb.append(" -r 25 ");
 		sb.append(dstVideoName);
 		
 		int exitVal = 0;
